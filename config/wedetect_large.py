@@ -149,7 +149,6 @@ coco_val_dataset = dict(
     pipeline=test_pipeline,
 )
 
-
 lvis_minival_dataset = dict(
     type="MultiModalDataset",
     dataset=dict(
@@ -177,6 +176,62 @@ lvis_od_val_dataset = dict(
     class_text_path=f"data/texts/lvis_v1_zh_class_texts.json",
     pipeline=test_pipeline,
 )
+
+artaxor_val_dataset = dict(
+    type="MultiModalDataset",
+    dataset=dict(
+        type="WeCocoDataset",
+        data_root="data/ArTaxOr",
+        test_mode=True,
+        ann_file="annotations/test.json",
+        data_prefix=dict(img="test"),
+        batch_shapes_cfg=None,
+        debug_mode=False,
+        metainfo=dict(
+            classes="data/texts/artaxor_class_texts.json"
+        )
+    ),
+    class_text_path="data/texts/artaxor_zh_class_texts.json",
+    pipeline=test_pipeline,
+)
+
+clipart1k_val_dataset = dict(
+    type="MultiModalDataset",
+    dataset=dict(
+        type="WeCocoDataset",
+        data_root="data/clipart1k",
+        test_mode=True,
+        ann_file="annotations/test.json",
+        data_prefix=dict(img="test"),
+        batch_shapes_cfg=None,
+        debug_mode=False,
+        metainfo=dict(
+            classes="data/texts/clipart1k_class_texts.json"
+        )
+    ),
+    class_text_path="data/texts/clipart1k_zh_class_texts.json",
+    pipeline=test_pipeline,
+)
+
+fish_val_dataset = dict(
+    type="MultiModalDataset",
+    dataset=dict(
+        type="WeCocoDataset",
+        data_root="data/FISH",
+        test_mode=True,
+        ann_file="annotations/test.json",
+        data_prefix=dict(img="test"),
+        batch_shapes_cfg=None,
+        debug_mode=False,
+        metainfo=dict(
+            classes="data/texts/fish_class_texts.json"
+        )
+    ),
+    class_text_path="data/texts/fish_zh_class_texts.json",
+    pipeline=test_pipeline,
+)
+
+
 coco_evaluator = dict(
     type="CocoMetric",
     ann_file=f"data/coco/annotations/instances_val2017.json",
@@ -188,11 +243,46 @@ lvis_minival_evaluator = dict(
     ann_file=f"data/lvis/lvis_v1_minival_inserted_image_name.json",
     metric="bbox",
 )
+
 lvis_od_val_evaluator = dict(
     type="LVISMetric",
     ann_file="data/lvis/lvis_od_val.json",
     metric="bbox",
 )
+
+artaxor_evaluator = dict(
+    type="CocoMetric",
+    ann_file=f"data/ArTaxOr/annotations/test.json",
+    metric="bbox",
+)
+
+clipart1k_evaluator = dict(
+    type="CocoMetric",
+    ann_file=f"data/clipart1k/annotations/test.json",
+    metric="bbox",
+)
+
+fish_evaluator = dict(
+    type="CocoMetric",
+    ann_file=f"data/FISH/annotations/test.json",
+    metric="bbox",
+)
+
+# current_dataset = "clipart1k"
+# current_dataset = "artaxor"
+current_dataset = "fish"
+
+val_dataset_list = {
+    "artaxor": artaxor_val_dataset,
+    "clipart1k": clipart1k_val_dataset,
+    "fish": fish_val_dataset,
+}
+
+val_evaluator_list = {
+    "artaxor": artaxor_evaluator,
+    "clipart1k": clipart1k_evaluator,
+    "fish": fish_evaluator,
+}
 
 val_dataloader = dict(
     batch_size=1,
@@ -201,13 +291,10 @@ val_dataloader = dict(
     pin_memory=True,
     drop_last=False,
     sampler=dict(type='DefaultSampler', shuffle=False),
-    dataset=coco_val_dataset)
+    dataset=val_dataset_list[current_dataset])
 
 test_dataloader = val_dataloader
-
-# val_evaluator = _base_.lvis_minival_evaluator
-# val_evaluator = _base_.lvis_od_val_evaluator
-val_evaluator = coco_evaluator
+val_evaluator = val_evaluator_list[current_dataset]
 test_evaluator = val_evaluator
 
 

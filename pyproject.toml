@@ -1,0 +1,48 @@
+[project]
+name = "wedetect"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "torch==2.5.1",
+    "torchvision==0.20.1",
+    "transformers==4.57.1",
+    "trl==0.17.0",
+    "accelerate==1.10.0",
+    "pycocotools",
+    "terminaltables",
+    "jsonlines",
+    "tabulate",
+    "lvis",
+    "supervision==0.19.0",
+    "webdataset",
+    "ddd-dataset",
+    "opencv-python-headless",
+    "setuptools",
+    "openmim",
+    "mmcv @ git+https://github.com/open-mmlab/mmcv.git@v2.1.0",
+    "mmdet @ git+https://github.com/open-mmlab/mmdetection.git@v3.3.0",
+    "timm>=1.0.24",
+]
+
+[tool.uv.sources]
+torch = [
+  { index = "pytorch-cu124", marker = "sys_platform == 'linux'"},
+]
+torchvision = [
+  { index = "pytorch-cu124", marker = "sys_platform == 'linux'" },
+]
+
+[[tool.uv.index]]
+name = "pytorch-cu124"
+url = "https://mirrors.nju.edu.cn/pytorch/whl/cu124"
+explicit = true
+
+[[tool.uv.index]]
+name = "tencent"
+url = "https://mirrors.cloud.tencent.com/pypi/simple"
+default = true
+
+[tool.uv]
+extra-build-dependencies = { mmcv = ["setuptools", "ninja", "psutil", "torch==2.5.1", "opencv-python-headless"], mmdet = ["torch==2.5.1", "numpy"] }

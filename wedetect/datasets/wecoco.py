@@ -11,6 +11,8 @@ class WeCocoDataset(YOLOv5CocoDataset):
     def __init__(self, debug_mode=False, **kwargs):
         if "metainfo" in kwargs:
             metainfo = kwargs["metainfo"]
+            print("metainfo!!!!!!!")
+            print(metainfo)
             if "classes" in metainfo and isinstance(metainfo["classes"], str) and osp.isfile(metainfo["classes"]):
                 with open(metainfo["classes"], "r") as f:
                     classes = json.load(f)
