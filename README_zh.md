@@ -61,7 +61,7 @@ mmengine==0.10.7
 
 ```
 pip install transformers==4.57.1 trl==0.17.0 accelerate==1.10.0 -i https://mirrors.cloud.tencent.com/pypi/simple
-pip install pycocotools terminaltables jsonlines tabulate lvis supervision==0.19.0 webdataset ddd-dataset -i https://mirrors.cloud.tencent.com/pypi/simple
+pip install pycocotools terminaltables jsonlines tabulate lvis supervision==0.19.0 webdataset ddd-dataset albumentations -i https://mirrors.cloud.tencent.com/pypi/simple
 
 pip install openmim -i https://mirrors.cloud.tencent.com/pypi/simple
 mim install mmcv==2.1.0
