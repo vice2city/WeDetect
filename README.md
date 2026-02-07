@@ -189,8 +189,9 @@ bash dist_train.sh config/wedetect_base_coco_vision_encoder_8xbs4_2e-5.py 8
 | Model                         | AP | AP<sub>50</sub> | AP<sub>75</sub> | AP<sub>s</sub> | AP<sub>m</sub> | AP<sub>l</sub> |
 | ----------------------------- | ----------------- | -------------- | -------------- | -------------- | ---------------- | ---------------- |
 | WeDetect-Base (zero-shot)     | 52.1              | 69.4           | 57.0           | 34.8           | 57.1             | 69.2 |
-| WeDetect-Base (OV-finetuning)     | 55.7              | 73.3           | 60.8           | 38.0           | 61.1             | 72.8 |
-
+| WeDetect-Base (OV-finetuning) | 55.7              | 73.3           | 60.8           | 38.0           | 61.1             | 72.8 |
+| WeDetect-Base (OV-finetuning mask refine) | 55.8  | 73.4           | 61.0           | 38.5           | 61.0             | 72.8 |
+| WeDetect-Base (CS-finetuning) | 56.2              | 73.9           | 61.6           | 39.1           | 61.7             | 73.7 |
 
 ## 🙏 Acknowledgement
 
