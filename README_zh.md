@@ -61,7 +61,7 @@ mmengine==0.10.7
 
 ```
 pip install transformers==4.57.1 trl==0.17.0 accelerate==1.10.0 -i https://mirrors.cloud.tencent.com/pypi/simple
-pip install pycocotools terminaltables jsonlines tabulate lvis supervision==0.19.0 webdataset ddd-dataset -i https://mirrors.cloud.tencent.com/pypi/simple
+pip install pycocotools terminaltables jsonlines tabulate lvis supervision==0.19.0 webdataset ddd-dataset albumentations -i https://mirrors.cloud.tencent.com/pypi/simple
 
 pip install openmim -i https://mirrors.cloud.tencent.com/pypi/simple
 mim install mmcv==2.1.0
@@ -109,7 +109,7 @@ python infer_wedetect_ref.py --wedetect_ref_checkpoint /PATH/TO/WEDETECT_REF --w
 
 
 
-### 📏 评测
+## 📏 评测
 #### 📍 WeDetect
 ```
 # Evaluating WeDetect-Base on COCO
@@ -144,11 +144,48 @@ python3 retrieval_metric.py --model wedetect --dataset coco --thre 0.2
 - 请您参见`wedetect_ref`文件夹
 
 
-### 🙏 致谢
+## 在下游数据集上微调WeDetect
+
+- 请将数据集整理成coco格式，并且提供一个类似于`data/texts/coco_zh_class_texts.json`的类别名称文件，需要是中文。
+- 下面我们以coco2017数据集为例，展示如何微调。我们采用WeDetect-Base模型，并且使用8张GPU（24G及以下即可），每张GPU 4张图片，训练12个epoch。
+- `Mask Refine`表示利用mask来修正bbox
+
+#### 📍 开放词汇微调
+
+```
+# original box annotations
+bash dist_train.sh config/wedetect_base_coco_full_tuning_8xbs4_2e-5.py 8
+
+# mask refine
+bash dist_train.sh config/wedetect_base_coco_full_tuning_8xbs4_2e-5_mask_refine.py 8
+```
+- 在开放词汇微调中，我们保留语言模型，并且其参数会随着训练更新。
+
+#### 📍 闭集微调
+```
+# Step 1: extract class embeddings
+python3 generate_class_embedding.py --wedetect_checkpoint wedetect_base.pth --classname_file data/texts/coco_zh_class_texts.json
+
+# Step 2: training wedetect vision encoder
+bash dist_train.sh config/wedetect_base_coco_vision_encoder_8xbs4_2e-5.py 8
+```
+- 在闭集检测中，我们丢弃了语言模型。
+- 用户需要首先提取类别文本向量来初始化分类器。运行上述的代码会产生一个`npy`文件，您需要替换config中的路径。
+
+
+| 模型                         | AP | AP<sub>50</sub> | AP<sub>75</sub> | AP<sub>s</sub> | AP<sub>m</sub> | AP<sub>l</sub> |
+| ----------------------------- | ----------------- | -------------- | -------------- | -------------- | ---------------- | ---------------- |
+| WeDetect-Base (zero-shot)     | 52.1              | 69.4           | 57.0           | 34.8           | 57.1             | 69.2 |
+| WeDetect-Base (OV-finetuning) | 55.7              | 73.3           | 60.8           | 38.0           | 61.1             | 72.8 |
+| WeDetect-Base (OV-finetuning mask refine) | 55.8  | 73.4           | 61.0           | 38.5           | 61.0             | 72.8 |
+| WeDetect-Base (CS-finetuning) | 56.2              | 73.9           | 61.6           | 39.1           | 61.7             | 73.7 |
+
+
+## 🙏 致谢
 
 - 本项目基于[mmdetection](https://github.com/open-mmlab/mmdetection/)、[YOLO-World](https://github.com/AILab-CVC/YOLO-World)、[transformers](https://github.com/huggingface/transformers)、[Qwen3-VL](https://github.com/QwenLM/Qwen3-VL) 等项目开发，感谢这些优秀的开源项目。
 
-### ✒️ 引用
+## ✒️ 引用
 
 如果您觉得我们的工作对您的研究有帮助，请您引用我们的工作：   
 

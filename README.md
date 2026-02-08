@@ -6,6 +6,12 @@ If you find our work helpful, please kindly give us a star 🌟
 
 Here is the [中文版指南](./README_zh.md).
 
+## 🔥 Update
+
+- [2026.02.06] We release the WeDetect finetuning code.
+- [2026.02.03] We release the first MLLM-based object embedding model [ObjEmbed](https://github.com/WeChatCV/ObjEmbed) based on WeDetect.
+- [2025.12.16] Release the inference code and paper.
+
 ## 👀 WeDetect Family Overview
 
 <p align="left">
@@ -65,7 +71,7 @@ mmengine==0.10.7
 
 ```
 pip install transformers==4.57.1 trl==0.17.0 accelerate==1.10.0 -i https://mirrors.cloud.tencent.com/pypi/simple
-pip install pycocotools terminaltables jsonlines tabulate lvis supervision==0.19.0 webdataset ddd-dataset -i https://mirrors.cloud.tencent.com/pypi/simple
+pip install pycocotools terminaltables jsonlines tabulate lvis supervision==0.19.0 webdataset ddd-dataset albumentations -i https://mirrors.cloud.tencent.com/pypi/simple
 
 # WeDetect-Ref users do not need to install following packages
 pip install openmim -i https://mirrors.cloud.tencent.com/pypi/simple
@@ -115,7 +121,7 @@ python infer_wedetect_ref.py --wedetect_ref_checkpoint /PATH/TO/WEDETECT_REF --w
 
 
 
-### 📏 Evaluation
+## 📏 Evaluation
 #### 📍 WeDetect
 ```
 # Evaluating WeDetect-Base on COCO
@@ -149,11 +155,49 @@ python3 retrieval_metric.py --model wedetect --dataset coco --thre 0.2
 #### 📍 WeDetect-Ref
 - Please refer to the folder `wedetect_ref`.
 
-### 🙏 Acknowledgement
+
+
+## Finetune WeDetect on a Custom Dataset
+
+- Please origanize your dataset in the COCO format. And provide a classname file in `Chinese` similar to `data/texts/coco_zh_class_texts.json`.
+- Below, we use COCO2017 as an example. We finetune WeDetect-Base with 8 GPUs (24G or less is OK), four images per device, and 12 epochs.
+- `Mask Refine` means refining bbox by mask.
+
+#### 📍 Open-vocabulary finetuning
+
+```
+# original box annotations
+bash dist_train.sh config/wedetect_base_coco_full_tuning_8xbs4_2e-5.py 8
+
+# mask refine
+bash dist_train.sh config/wedetect_base_coco_full_tuning_8xbs4_2e-5_mask_refine.py 8
+```
+- In open-vocabulary finetuning, the text encoder is retained and will be updated during training.
+
+#### 📍 Closed-set finetuning
+```
+# Step 1: extract class embeddings
+python3 generate_class_embedding.py --wedetect_checkpoint wedetect_base.pth --classname_file data/texts/coco_zh_class_texts.json
+
+# Step 2: training wedetect vision encoder
+bash dist_train.sh config/wedetect_base_coco_vision_encoder_8xbs4_2e-5.py 8
+```
+- In closed-set finetuning, we discard the text encoder.
+- Users should first extract classname embeddings to initialize the classifier. Running the command will save an `npy` file. Please replace the file in the config.
+
+
+| Model                         | AP | AP<sub>50</sub> | AP<sub>75</sub> | AP<sub>s</sub> | AP<sub>m</sub> | AP<sub>l</sub> |
+| ----------------------------- | ----------------- | -------------- | -------------- | -------------- | ---------------- | ---------------- |
+| WeDetect-Base (zero-shot)     | 52.1              | 69.4           | 57.0           | 34.8           | 57.1             | 69.2 |
+| WeDetect-Base (OV-finetuning) | 55.7              | 73.3           | 60.8           | 38.0           | 61.1             | 72.8 |
+| WeDetect-Base (OV-finetuning mask refine) | 55.8  | 73.4           | 61.0           | 38.5           | 61.0             | 72.8 |
+| WeDetect-Base (CS-finetuning) | 56.2              | 73.9           | 61.6           | 39.1           | 61.7             | 73.7 |
+
+## 🙏 Acknowledgement
 
 - WeDetect is based on many outstanding open-sourced projects, including [mmdetection](https://github.com/open-mmlab/mmdetection/), [YOLO-World](https://github.com/AILab-CVC/YOLO-World), [transformers](https://github.com/huggingface/transformers), [Qwen3-VL](https://github.com/QwenLM/Qwen3-VL) and many others. Thank the authors of above projects for open-sourcing their assets!
 
-### ✒️ Citation
+## ✒️ Citation
 
 If you find our work helpful for your research, please consider citing our work.   
 
