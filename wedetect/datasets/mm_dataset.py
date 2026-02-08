@@ -2,7 +2,7 @@
 import copy
 import json
 import logging
-from typing import Callable, List, Union
+from typing import Callable, List, Union, Optional
 
 from mmengine.logging import print_log
 from mmengine.dataset.base_dataset import (
@@ -16,7 +16,7 @@ class MultiModalDataset:
 
     def __init__(self,
                  dataset: Union[BaseDataset, dict],
-                 class_text_path: str = None,
+                 class_text_path: Optional[str] = None,
                  test_mode: bool = True,
                  pipeline: List[Union[dict, Callable]] = [],
                  lazy_init: bool = False) -> None:
@@ -32,10 +32,10 @@ class MultiModalDataset:
 
         if class_text_path is not None:
             self.class_texts = json.load(open(class_text_path, 'r'))
-            # ori_classes = self.dataset.metainfo['classes']
-            # assert len(ori_classes) == len(self.class_texts), \
-            #     ('The number of classes in the dataset and the class text'
-            #      'file must be the same.')
+            ori_classes = self.dataset.metainfo['classes']
+            assert len(ori_classes) == len(self.class_texts), \
+                (f'The number of classes {len(ori_classes)} in the dataset and the class text'
+                 f'file {len(self.class_texts)} must be the same.')
         else:
             self.class_texts = None
 
@@ -102,7 +102,7 @@ class MultiModalMixedDataset(MultiModalDataset):
     """
     def __init__(self,
                  dataset: Union[BaseDataset, dict],
-                 class_text_path: str = None,
+                 class_text_path:  Optional[str] = None,
                  dataset_type: str = 'detection',
                  test_mode: bool = True,
                  pipeline: List[Union[dict, Callable]] = [],
