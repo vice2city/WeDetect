@@ -18,6 +18,7 @@ dependencies = [
     "supervision==0.19.0",
     "webdataset",
     "ddd-dataset",
+    "albumentations",
     "opencv-python-headless",
     "setuptools",
     "openmim",
