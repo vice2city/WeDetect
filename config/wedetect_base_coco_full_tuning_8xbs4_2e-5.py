@@ -145,13 +145,29 @@ coco_train_dataset = dict(
     class_text_path='data/texts/coco_zh_class_texts.json',
     pipeline=train_pipeline)
 
+pseudo_ann_file = 'data/coco/annotations/instances_train2017_pseudo.json'
+pseudo_coco_train_dataset = dict(
+    type='MultiModalDataset',
+    dataset=dict(
+        type='WeCocoDataset',
+        data_root='data/coco/',
+        ann_file=pseudo_ann_file,
+        data_prefix=dict(img='train2017/'),
+        filter_cfg=dict(filter_empty_gt=False, min_size=32)),
+    class_text_path='data/texts/coco_zh_class_texts.json',
+    pipeline=train_pipeline_stage2)
+
+train_dataset = dict(
+    type='WeConcatDataset',
+    datasets=[coco_train_dataset, pseudo_coco_train_dataset])
+
 train_dataloader = dict(
     num_workers=2,
     persistent_workers=persistent_workers,
     batch_size=train_batch_size_per_gpu,
     collate_fn=dict(type='yolow_collate'),
     sampler=dict(type='DefaultSampler', shuffle=True),
-    dataset=coco_train_dataset)
+    dataset=train_dataset)
 
 
 # training settings
@@ -201,6 +217,5 @@ optim_wrapper = dict(
         custom_keys={'backbone.text_model': dict(lr_mult=0.01),
                      'logit_scale': dict(weight_decay=0.0)}),
     constructor='YOLOWv5OptimizerConstructor')
-
 
 
